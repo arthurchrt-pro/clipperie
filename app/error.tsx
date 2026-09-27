@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { ErrorScreen } from "@/components/ErrorScreen";
+import { StatusScreen } from "@/components/StatusScreen";
 
 export default function Error({
   error,
@@ -15,7 +15,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <ErrorScreen
+    <StatusScreen
       code="Petit accroc"
       title="Quelque chose a coincé de notre côté."
       text="Ce n’est pas toi, c’est nous. Réessaie dans un instant : si ça recommence, reviens à l’accueil."
@@ -27,6 +27,6 @@ export default function Error({
       >
         Réessayer
       </button>
-    </ErrorScreen>
+    </StatusScreen>
   );
 }

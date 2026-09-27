@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ErrorScreen } from "@/components/ErrorScreen";
+import { StatusScreen } from "@/components/StatusScreen";
 
 // Page provisoire : le bouton de paiement y mène tant que Stripe n'est pas branché (étape 2).
 export const metadata: Metadata = {
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function Bientot() {
   return (
-    <ErrorScreen
+    <StatusScreen
       code="Ouverture imminente"
       title="Le paiement ouvre dans quelques jours."
       text="Clipperie se prépare pour ses premiers clients. Reviens très vite : tu pourras t’abonner en moins d’une minute."

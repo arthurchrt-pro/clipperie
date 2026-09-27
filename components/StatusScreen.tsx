@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
 
-// Écran commun aux pages 404, erreur et attente : jamais de cul-de-sac, toujours un retour à l'accueil.
-export function ErrorScreen({
+// Écran commun aux pages 404, erreur, attente et retour de paiement : jamais de cul-de-sac, toujours un retour à l'accueil.
+export function StatusScreen({
   code,
   title,
   text,
