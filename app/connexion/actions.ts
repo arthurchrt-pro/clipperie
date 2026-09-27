@@ -24,10 +24,16 @@ export async function sendMagicLink(formData: FormData) {
       emailRedirectTo: `${await requestOrigin()}/auth/confirm`,
     },
   });
-  if (error?.status === 429) back("erreur=limite");
-  // Adresse inconnue ou autre souci : même réponse qu'en cas de succès,
-  // pour ne pas révéler qui est client.
-  if (error) console.warn("Lien de connexion non envoyé :", error.message);
+  if (error) {
+    console.warn("Lien de connexion non envoyé :", error.code, error.message);
+    if (error.status === 429 || error.code === "over_email_send_rate_limit") {
+      back("erreur=limite");
+    }
+    // Adresse sans compte : même réponse qu'en cas de succès, pour ne pas révéler qui est client.
+    if (error.code !== "otp_disabled" && error.code !== "signup_disabled") {
+      back("erreur=envoi");
+    }
+  }
 
   back("envoye=1");
 }

@@ -19,6 +19,8 @@ const ERRORS: Record<string, string> = {
   acces:
     "L’accès direct n’a pas fonctionné. Reçois ton lien de connexion par email, ça prend une minute.",
   config: "La connexion n’est pas encore ouverte. Reviens très vite.",
+  envoi:
+    "L’email n’a pas pu partir, le souci vient de chez nous. Réessaie dans quelques minutes.",
 };
 
 export default async function Connexion({ searchParams }: PageProps<"/connexion">) {
