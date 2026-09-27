@@ -35,7 +35,8 @@ export default defineConfig({
   },
   build: {
     extensions: [
-      ffmpeg({ version: "7" }),
+      // ffmpeg du système (la version statique plante en lisant des flux en ligne).
+      ffmpeg(),
       ytDlp(),
       additionalFiles({ files: ["./assets/fonts/*.ttf"] }),
     ],
