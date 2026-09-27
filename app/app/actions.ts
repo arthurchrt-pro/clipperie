@@ -7,6 +7,7 @@ import { requestOrigin } from "@/lib/request";
 import { getPortalConfigurationId, getStripe } from "@/lib/stripe";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { parseVideoLink } from "@/lib/videoLink";
+import { STUCK_AFTER_MS } from "@/lib/videoStatus";
 import { cornerBox } from "@/engine/layout";
 import type { Corner } from "@/engine/types";
 import type { processVideo } from "@/trigger/processVideo";
@@ -83,17 +84,19 @@ export async function submitVideo(formData: FormData) {
   redirect("/app?ajoute=1");
 }
 
-// Relance la découpe d'une vidéo en erreur (par exemple si YouTube bloquait temporairement).
+// Relance la découpe d'une vidéo en erreur (YouTube qui bloquait, souci passager)
+// ou restée bloquée en file d'attente.
 export async function retryVideo(formData: FormData) {
   const { user } = await requireUser();
   const videoId = String(formData.get("video_id") ?? "");
   const admin = createAdminClient();
+  const stuckBefore = new Date(Date.now() - STUCK_AFTER_MS).toISOString();
   const { data: video } = await admin
     .from("videos")
     .update({ status: "en_attente", error_message: null })
     .eq("id", videoId)
     .eq("user_id", user.id)
-    .eq("status", "erreur")
+    .or(`status.eq.erreur,and(status.eq.en_attente,created_at.lt.${stuckBefore})`)
     .select("id")
     .maybeSingle();
   if (video) {

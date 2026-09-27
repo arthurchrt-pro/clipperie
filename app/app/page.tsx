@@ -9,7 +9,7 @@ import { SubmitButton } from "@/components/SubmitButton";
 import { SITE } from "@/lib/site";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
-import { IN_PROGRESS, STATUS } from "@/lib/videoStatus";
+import { canRetry, IN_PROGRESS, STATUS } from "@/lib/videoStatus";
 import { openPortal, retryVideo, signOut, submitVideo } from "./actions";
 
 export const metadata: Metadata = {
@@ -301,14 +301,14 @@ export default async function AppPage({ searchParams }: PageProps<"/app">) {
                         Voir les clips →
                       </Link>
                     )}
-                    {video.status === "erreur" && (
+                    {canRetry(video.status, video.created_at) && (
                       <form action={retryVideo} className="mt-3">
                         <input type="hidden" name="video_id" value={video.id} />
                         <button
                           type="submit"
                           className="inline-flex min-h-11 cursor-pointer items-center rounded-xl border-2 border-encre px-4 font-display font-extrabold"
                         >
-                          Réessayer
+                          {video.status === "erreur" ? "Réessayer" : "Relancer"}
                         </button>
                       </form>
                     )}

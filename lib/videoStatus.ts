@@ -10,3 +10,14 @@ export const STATUS: Record<string, { label: string; detail: string }> = {
 };
 
 export const IN_PROGRESS = ["en_attente", "telechargement", "transcription", "analyse", "rendu"];
+
+// Délai au-delà duquel une vidéo restée en file d'attente peut être relancée.
+export const STUCK_AFTER_MS = 10 * 60 * 1000;
+
+// Une vidéo peut être relancée si elle est en erreur, ou bloquée en file d'attente.
+export function canRetry(status: string, createdAt: string) {
+  return (
+    status === "erreur" ||
+    (status === "en_attente" && Date.parse(createdAt) < Date.now() - STUCK_AFTER_MS)
+  );
+}
