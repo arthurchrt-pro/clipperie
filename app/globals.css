@@ -1,17 +1,117 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Palette Clipperie : deux couleurs (rouge REC, jaune surligneur) + neutres chauds. */
+@theme {
+  --color-rec: #d93a1f;
+  --color-rec-fonce: #b52d15;
+  --color-surligneur: #ffd23f;
+  --color-creme: #f7f1e6;
+  --color-sable: #ece2cf;
+  --color-papier: #fffbf4;
+  --color-encre: #1b1714;
+  --color-encre-douce: #5a524b;
+  --color-ecran: #2a2420;
+  --color-silhouette: #3d352f;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  color-scheme: light;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--color-creme);
+  color: var(--color-encre);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--color-surligneur);
+  color: var(--color-encre);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-encre);
+  outline-offset: 3px;
+}
+
+/* Mot mis en valeur comme dans un sous-titre karaoké. */
+.surligne {
+  background: var(--color-surligneur);
+  color: var(--color-encre);
+  padding: 0 0.14em;
+  border-radius: 0.12em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* Voyant « REC » qui clignote doucement. */
+@keyframes rec {
+  0%,
+  55% {
+    opacity: 1;
+  }
+  56%,
+  100% {
+    opacity: 0.25;
+  }
+}
+
+.voyant-rec {
+  animation: rec 1.6s steps(1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .voyant-rec {
+    animation: none;
+  }
+}
+
+/* Mise en forme des pages légales. */
+.legal h2 {
+  margin-top: 2.5rem;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.legal h3 {
+  margin-top: 1.5rem;
+  font-weight: 700;
+}
+
+.legal p,
+.legal ul,
+.legal ol {
+  margin-top: 0.75rem;
+  line-height: 1.7;
+}
+
+.legal ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+
+.legal ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
+
+.legal li + li {
+  margin-top: 0.35rem;
+}
+
+.legal a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
