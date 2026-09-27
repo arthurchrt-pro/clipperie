@@ -25,6 +25,7 @@ const CLIPS = [
     word: "vraiment",
     after: "fait en live",
     title: "Il l’a vraiment fait en direct",
+    split: true,
   },
   {
     minute: 91.4,
@@ -46,6 +47,44 @@ const BARS = Array.from({ length: BAR_COUNT }, (_, i) => {
 });
 
 const TILTS = ["-rotate-3 translate-y-2", "", "rotate-3 translate-y-2"];
+
+// Cadrage « plein écran » : la personne filmée occupe tout le clip.
+function FullFrame() {
+  return (
+    <svg
+      viewBox="0 0 90 160"
+      className="absolute inset-0 h-full w-full"
+      preserveAspectRatio="xMidYMax slice"
+    >
+      <circle cx="45" cy="64" r="17" fill="var(--color-silhouette)" />
+      <path d="M12 160 C12 108 78 108 78 160 Z" fill="var(--color-silhouette)" />
+    </svg>
+  );
+}
+
+// Cadrage « facecam + jeu » : la webcam en haut, le jeu en bas.
+function SplitFrame() {
+  return (
+    <svg
+      viewBox="0 0 90 160"
+      className="absolute inset-0 h-full w-full"
+      preserveAspectRatio="none"
+    >
+      <circle cx="45" cy="31" r="11" fill="var(--color-silhouette)" />
+      <path d="M22 62 C22 43 68 43 68 62 Z" fill="var(--color-silhouette)" />
+      <rect y="62" width="90" height="98" fill="#201b18" />
+      <path
+        d="M0 142 L18 116 L32 128 L50 102 L68 124 L90 110 L90 160 L0 160 Z"
+        fill="var(--color-silhouette)"
+      />
+      <g stroke="var(--color-creme)" strokeOpacity="0.55" strokeWidth="1.4" fill="none">
+        <circle cx="45" cy="104" r="6" />
+        <path d="M45 94 V99 M45 109 V114 M35 104 H40 M50 104 H55" />
+      </g>
+      <line x1="0" y1="62" x2="90" y2="62" stroke="var(--color-encre)" strokeWidth="1.5" />
+    </svg>
+  );
+}
 
 export function HeroVisual() {
   return (
@@ -113,21 +152,15 @@ export function HeroVisual() {
           {CLIPS.map((clip, i) => (
             <div key={clip.time} className={TILTS[i]}>
               <div className="relative aspect-[9/16] overflow-hidden rounded-2xl border-2 border-encre bg-ecran shadow-[3px_3px_0_var(--color-encre)]">
-                <svg
-                  viewBox="0 0 90 160"
-                  className="absolute inset-0 h-full w-full"
-                  preserveAspectRatio="xMidYMax slice"
-                >
-                  <circle cx="45" cy="64" r="17" fill="var(--color-silhouette)" />
-                  <path
-                    d="M12 160 C12 108 78 108 78 160 Z"
-                    fill="var(--color-silhouette)"
-                  />
-                </svg>
+                {"split" in clip ? <SplitFrame /> : <FullFrame />}
                 <span className="absolute top-2 left-2 rounded-md bg-encre/70 px-1.5 py-0.5 text-[9px] font-semibold text-creme tabular-nums md:text-[11px]">
                   {clip.time}
                 </span>
-                <p className="absolute inset-x-1.5 bottom-[18%] text-center font-display text-[10px] leading-[1.3] font-extrabold tracking-wide text-white uppercase [word-spacing:0.12em] md:text-[13px]">
+                <p
+                  className={`absolute inset-x-1.5 ${
+                    "split" in clip ? "top-[33%]" : "bottom-[18%]"
+                  } text-center font-display text-[10px] leading-[1.3] font-extrabold tracking-wide text-white uppercase [word-spacing:0.12em] md:text-[13px]`}
+                >
                   {clip.before}{" "}
                   <span className="surligne">{clip.word}</span> {clip.after}
                 </p>

@@ -35,6 +35,10 @@ export default function Cgv() {
         <li>transcription automatique de la parole&nbsp;;</li>
         <li>repérage automatique des moments forts&nbsp;;</li>
         <li>découpe en clips verticaux de 60&nbsp;secondes maximum&nbsp;;</li>
+        <li>
+          cadrage au choix&nbsp;: plein écran, ou «&nbsp;facecam + jeu&nbsp;»
+          (webcam en haut, jeu en bas)&nbsp;;
+        </li>
         <li>sous-titres incrustés et titre proposé pour chaque clip&nbsp;;</li>
         <li>export des clips, un par un ou tous ensemble.</li>
       </ul>
@@ -47,15 +51,19 @@ export default function Cgv() {
         Une vidéo fournie par lien doit être accessible publiquement. Si une
         plateforme empêche sa récupération (rediffusion Twitch expirée, vidéo
         privée ou bloquée), le client est invité à déposer le fichier vidéo à
-        la place&nbsp;; aucun clip n’est décompté de son quota.
+        la place&nbsp;; rien n’est décompté de son quota.
       </p>
 
       <h2>3. Prix et quota</h2>
       <p>
         L’abonnement coûte <strong>{SITE.price} par mois</strong>. {LEGAL.tva}{" "}
-        Il donne droit à <strong>{SITE.clipsPerMonth} clips par période
-        mensuelle</strong>. Les clips non utilisés ne sont pas reportés sur la
-        période suivante.
+        Il donne droit au traitement de{" "}
+        <strong>
+          {SITE.hoursPerMonth}&nbsp;heures de vidéo par période mensuelle
+        </strong>
+        , soit environ {SITE.approxClipsPerMonth}&nbsp;clips. La durée est
+        décomptée à la minute sur la vidéo source. Les heures non utilisées ne
+        sont pas reportées sur la période suivante.
       </p>
       <p>
         Clipperie peut faire évoluer ses prix. Tout changement est annoncé par
@@ -134,6 +142,7 @@ export default function Cgv() {
       <p>
         À l’attention de <Todo value={LEGAL.editeur} label="prénom et nom" />,
         Clipperie, <Todo value={LEGAL.adresse} label="adresse postale" />,{" "}
+        <Todo value={LEGAL.ville} label="code postal et ville" />,{" "}
         <Todo value={LEGAL.email} label="email de contact" />&nbsp;:
       </p>
       <p>

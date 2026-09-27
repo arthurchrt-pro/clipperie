@@ -26,6 +26,7 @@ export default function MentionsLegales() {
         </li>
         <li>
           Adresse&nbsp;: <Todo value={LEGAL.adresse} label="adresse postale" />
+          , <Todo value={LEGAL.ville} label="code postal et ville" />
         </li>
         <li>
           Email&nbsp;: <Todo value={LEGAL.email} label="email de contact" />

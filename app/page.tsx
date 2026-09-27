@@ -33,6 +33,7 @@ const FEATURES = [
   "Un lien Twitch ou YouTube suffit",
   "Repérage des moments forts",
   "Clips verticaux d’une minute maximum",
+  "Cadrage plein écran ou facecam + jeu",
   "Sous-titres incrustés et accroche proposée",
   "Export de tous tes clips en une fois",
 ];
@@ -209,8 +210,14 @@ export default function Home() {
               <span className="text-xl text-encre-douce">&nbsp;/&nbsp;mois</span>
             </p>
             <p className="mt-3 text-lg leading-snug">
-              <strong>{SITE.clipsPerMonth} clips par mois</strong>, sous-titrés et
-              prêts à poster.
+              <strong>{SITE.hoursPerMonth}&nbsp;heures de live par mois</strong>,
+              soit environ {SITE.approxClipsPerMonth}&nbsp;clips&nbsp;: une
+              dizaine par jour.
+            </p>
+            <p className="mt-3 leading-snug text-encre-douce">
+              Sur une campagne à 1&nbsp;€ les 1&nbsp;000&nbsp;vues, un seul clip à
+              50&nbsp;000&nbsp;vues rapporte 50&nbsp;€&nbsp;: ton mois est
+              remboursé.
             </p>
             <ul className="mt-6 space-y-3">
               {FEATURES.map((feature) => (

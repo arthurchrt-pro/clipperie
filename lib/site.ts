@@ -7,7 +7,9 @@ export const SITE = {
   description:
     "Colle le lien d’un live Twitch ou d’une vidéo YouTube\u00a0: Clipperie en tire des dizaines de clips TikTok d’une minute maximum, sous-titrés et prêts à poster. L’outil des clippeurs.",
   price: "49 €",
-  clipsPerMonth: 60,
+  // Quota mensuel, compté en heures de vidéo source traitées.
+  hoursPerMonth: 20,
+  approxClipsPerMonth: 300,
   // Délai de livraison promis pendant la prévente (offre de lancement).
   launchDeliveryDays: 7,
 };
@@ -27,7 +29,9 @@ export const LEGAL = {
   // Numéro SIRET à 14 chiffres (celui de la micro-entreprise existante)
   siret: null as string | null,
   // Adresse postale de domiciliation de l'entreprise
-  adresse: null as string | null,
+  adresse: "62b rue Danton" as string | null,
+  // Code postal et ville, ex. "75006 Paris"
+  ville: null as string | null,
   // Adresse email de contact affichée publiquement, ex. "bonjour@clipperie.fr"
   email: "seconde-main.contact@proton.me" as string | null,
   // Mention TVA : à garder tant que tu es en franchise de TVA
