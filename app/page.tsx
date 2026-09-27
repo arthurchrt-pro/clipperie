@@ -15,7 +15,7 @@ const BENEFITS = [
   {
     step: "01 · Repérer",
     title: "Les meilleurs moments, trouvés pour toi",
-    text: "Clipperie écoute toute ta vidéo et garde les passages qui tiennent tout seuls : une idée forte, une anecdote, une chute. De 30 à 60 secondes chacun.",
+    text: "Clipperie écoute toute ta vidéo et garde les passages qui tiennent tout seuls : une idée forte, une anecdote, une chute. Une minute maximum chacun, le format qui marche sur TikTok.",
   },
   {
     step: "02 · Sous-titrer",
@@ -25,23 +25,23 @@ const BENEFITS = [
   {
     step: "03 · Publier",
     title: "Tout est prêt, d’un seul coup",
-    text: "Tu télécharges tous tes clips en une fois, avec leurs titres. Il ne te reste qu’à les programmer sur TikTok, Reels et Shorts.",
+    text: "Tu télécharges tous tes clips en une fois, avec leurs titres. Il ne te reste qu’à les publier sur TikTok, et même sur Reels et Shorts.",
   },
 ];
 
 const FEATURES = [
-  "Transcription automatique de tes vidéos",
+  "Un lien Twitch ou YouTube suffit",
   "Repérage des moments forts",
-  "Clips verticaux de 30 à 60 secondes",
+  "Clips verticaux d’une minute maximum",
   "Sous-titres incrustés et titre proposé",
   "Export de tous tes clips en une fois",
 ];
 
 const FAQ = [
   {
-    question: "Quelles vidéos puis-je déposer ?",
+    question: "Quelles vidéos puis-je utiliser ?",
     answer:
-      "Tout ce qui est parlé : podcasts filmés, lives, formations, webinaires. Tu déposes le fichier ou tu colles un lien.",
+      "Colle le lien d’un live Twitch (tant que la rediffusion est en ligne) ou d’une vidéo YouTube. Tout ce qui est parlé fonctionne : lives, podcasts, formations. Tu peux aussi déposer un fichier vidéo.",
   },
   {
     question: "Combien de temps faut-il attendre ?",
@@ -107,9 +107,10 @@ export default function Home() {
               <span className="surligne">trente clips</span> verticaux.
             </h1>
             <p className="mt-5 text-lg leading-relaxed text-encre-douce md:text-xl">
-              Dépose ta vidéo. Clipperie repère les meilleurs moments, les
-              recadre à la verticale et les sous-titre. Tu n’as plus qu’à
-              publier.
+              Colle le lien de ton live Twitch ou de ta vidéo YouTube.
+              Clipperie en tire des clips TikTok d’une minute maximum,{" "}
+              <span className="whitespace-nowrap">sous-titrés</span>. Tu n’as
+              plus qu’à publier.
             </p>
             <div className="mt-7 md:max-w-sm">
               <CheckoutButton stickyHide>

@@ -5,7 +5,7 @@ export const SITE = {
   // La promesse des vidéos courtes, reprise mot pour mot en haut de la landing.
   promise: "Un live de deux heures devient trente clips verticaux.",
   description:
-    "Dépose ta vidéo longue\u00a0: Clipperie repère les meilleurs moments, les recadre à la verticale et les sous-titre. Trente clips prêts à publier sur TikTok, Reels et Shorts.",
+    "Colle le lien de ton live Twitch ou de ta vidéo YouTube\u00a0: Clipperie en tire des dizaines de clips verticaux d’une minute maximum, sous-titrés et prêts à publier sur TikTok.",
   price: "49 €",
   clipsPerMonth: 60,
   // Délai de livraison promis pendant la prévente (offre de lancement).

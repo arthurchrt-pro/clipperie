@@ -89,7 +89,7 @@ export default function OpengraphImage() {
               color: "#5a524b",
             }}
           >
-            Sous-titrés, prêts pour TikTok, Reels et Shorts.
+            Un lien Twitch ou YouTube, des clips TikTok prêts à publier.
           </div>
         </div>
         <div

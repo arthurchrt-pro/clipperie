@@ -51,14 +51,31 @@ export function HeroVisual() {
   return (
     <figure className="relative">
       <figcaption className="sr-only">
-        Exemple&nbsp;: dans une vidéo de deux heures, Clipperie repère trente
-        moments et les transforme en clips verticaux sous-titrés, chacun avec un
-        titre.
+        Exemple&nbsp;: à partir du lien d’un live Twitch de deux heures,
+        Clipperie repère trente moments et les transforme en clips verticaux
+        sous-titrés, chacun avec un titre.
       </figcaption>
 
       <div aria-hidden>
         {/* La vidéo longue : forme d'onde et moments repérés */}
         <div className="rounded-2xl border-2 border-encre bg-papier p-3 shadow-[4px_4px_0_var(--color-encre)]">
+          <div className="mb-3 flex items-center gap-2 rounded-lg border border-encre/15 bg-creme px-2.5 py-1.5 text-xs font-semibold text-encre-douce md:text-sm">
+            <svg
+              viewBox="0 0 24 24"
+              className="size-4 shrink-0 text-rec"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+            >
+              <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" />
+              <path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />
+            </svg>
+            <span className="truncate">twitch.tv/videos/2219438871</span>
+            <span className="ml-auto shrink-0 rounded bg-encre px-1.5 py-0.5 text-[10px] text-creme md:text-xs">
+              Lien collé
+            </span>
+          </div>
           <div className="relative h-3">
             {MOMENTS.map((minute) => {
               const isClip = CLIPS.some((clip) => clip.minute === minute);

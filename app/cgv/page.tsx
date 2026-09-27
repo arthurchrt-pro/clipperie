@@ -28,10 +28,13 @@ export default function Cgv() {
       <h2>2. Le service</h2>
       <p>Clipperie transforme des vidéos longues en clips verticaux courts&nbsp;:</p>
       <ul>
-        <li>dépôt d’un fichier vidéo ou d’un lien vers une vidéo&nbsp;;</li>
+        <li>
+          lien vers une vidéo (live Twitch, vidéo YouTube) ou dépôt d’un fichier
+          vidéo&nbsp;;
+        </li>
         <li>transcription automatique de la parole&nbsp;;</li>
         <li>repérage automatique des moments forts&nbsp;;</li>
-        <li>découpe en clips verticaux de 30 à 60&nbsp;secondes&nbsp;;</li>
+        <li>découpe en clips verticaux de 60&nbsp;secondes maximum&nbsp;;</li>
         <li>sous-titres incrustés et titre proposé pour chaque clip&nbsp;;</li>
         <li>export des clips, un par un ou tous ensemble.</li>
       </ul>
@@ -39,6 +42,12 @@ export default function Cgv() {
         Les traitements sont automatiques. Le client relit ses clips avant de
         les publier&nbsp;: une transcription peut contenir des erreurs,
         notamment sur les noms propres ou en cas de son de mauvaise qualité.
+      </p>
+      <p>
+        Une vidéo fournie par lien doit être accessible publiquement. Si une
+        plateforme empêche sa récupération (rediffusion Twitch expirée, vidéo
+        privée ou bloquée), le client est invité à déposer le fichier vidéo à
+        la place&nbsp;; aucun clip n’est décompté de son quota.
       </p>
 
       <h2>3. Prix et quota</h2>
