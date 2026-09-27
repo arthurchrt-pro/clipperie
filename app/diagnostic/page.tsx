@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { Logo } from "@/components/Logo";
 import { getStripe } from "@/lib/stripe";
-import { supabasePublishableKey, supabaseUrl } from "@/lib/supabase/env";
+import { supabasePublishableKey, supabaseUrl, supabaseUrlRaw } from "@/lib/supabase/env";
 import { createAdminClient } from "@/lib/supabase/server";
 
 // Page temporaire de vérification de la configuration, à retirer après le lancement.
@@ -60,15 +60,18 @@ async function runChecks(): Promise<Check[]> {
 
   // Supabase : réglages
   const url = supabaseUrl();
-  const urlOk = /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/.test(url);
+  const rawUrl = supabaseUrlRaw();
+  const urlOk = /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url);
   checks.push({
     label: "Adresse Supabase (NEXT_PUBLIC_SUPABASE_URL)",
     ok: urlOk,
     detail: !url
       ? "absente"
-      : urlOk
-        ? "au bon format"
-        : `format inattendu : « ${url.slice(0, 60)} » (attendu https://xxxx.supabase.co)`,
+      : !urlOk
+        ? `format inattendu : « ${rawUrl.slice(0, 60)} » (attendu https://xxxx.supabase.co)`
+        : rawUrl.replace(/\/$/, "") !== url
+          ? `au bon format (le chemin en trop « ${rawUrl.slice(url.length)} » est ignoré)`
+          : "au bon format",
   });
   const publishable = supabasePublishableKey();
   checks.push({
