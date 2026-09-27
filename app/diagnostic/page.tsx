@@ -4,6 +4,8 @@ import { Logo } from "@/components/Logo";
 import { getStripe } from "@/lib/stripe";
 import { supabasePublishableKey, supabaseUrl, supabaseUrlRaw } from "@/lib/supabase/env";
 import { createAdminClient } from "@/lib/supabase/server";
+import { SubmitButton } from "@/components/SubmitButton";
+import { activatePendingPayments } from "./actions";
 
 // Page temporaire de vérification de la configuration, à retirer après le lancement.
 // Elle n'affiche aucune valeur secrète : seulement si chaque réglage est présent et fonctionne.
@@ -148,9 +150,10 @@ async function runChecks(): Promise<Check[]> {
   return checks;
 }
 
-export default async function Diagnostic() {
+export default async function Diagnostic({ searchParams }: PageProps<"/diagnostic">) {
   await connection();
   const checks = await runChecks();
+  const { resultat } = await searchParams;
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10">
@@ -175,6 +178,29 @@ export default async function Diagnostic() {
           </li>
         ))}
       </ul>
+
+      <section className="mt-8 rounded-2xl border-2 border-dashed border-encre/25 p-4">
+        <h2 className="font-display text-xl font-extrabold">
+          Activer les paiements en attente
+        </h2>
+        <p className="mt-1 text-sm text-encre-douce">
+          Refait, pour les derniers paiements de test non activés, ce que fait le
+          webhook, et affiche l’erreur précise s’il y en a une.
+        </p>
+        {typeof resultat === "string" && (
+          <p
+            role="status"
+            className="mt-3 rounded-xl bg-surligneur px-3 py-2 text-sm font-semibold break-words"
+          >
+            {resultat}
+          </p>
+        )}
+        <form action={activatePendingPayments} className="mt-4">
+          <SubmitButton pendingLabel="Activation en cours…">
+            Activer les paiements en attente
+          </SubmitButton>
+        </form>
+      </section>
     </main>
   );
 }
