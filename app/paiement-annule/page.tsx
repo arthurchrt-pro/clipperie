@@ -7,7 +7,13 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 
-export default function PaiementAnnule() {
+export default async function PaiementAnnule({
+  searchParams,
+}: PageProps<"/paiement-annule">) {
+  const { ref } = await searchParams;
+  const reference =
+    typeof ref === "string" ? ref.replace(/[^\w.-]/g, "").slice(0, 60) : "";
+
   return (
     <StatusScreen
       code="Paiement non abouti"
@@ -15,6 +21,11 @@ export default function PaiementAnnule() {
       text="Le paiement a été interrompu ou n’a pas pu aboutir. Tu peux réessayer maintenant : ça prend moins d’une minute."
     >
       <CheckoutButton>Réessayer le paiement</CheckoutButton>
+      {reference && (
+        <p className="order-last text-center text-sm text-encre-douce">
+          Référence de l’erreur&nbsp;: <code>{reference}</code>
+        </p>
+      )}
     </StatusScreen>
   );
 }

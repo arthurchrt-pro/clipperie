@@ -61,6 +61,16 @@ export async function POST(request: Request) {
     return Response.redirect(session.url, 303);
   } catch (error) {
     console.error("Création de la session de paiement impossible", error);
-    return Response.redirect(`${origin}/paiement-annule`, 303);
+    // Référence courte affichée au client pour diagnostiquer, sans détail sensible.
+    const ref =
+      error instanceof Stripe.errors.StripeError
+        ? (error.code ?? error.type)
+        : error instanceof Error
+          ? error.name
+          : "inconnue";
+    return Response.redirect(
+      `${origin}/paiement-annule?ref=${encodeURIComponent(ref)}`,
+      303,
+    );
   }
 }
