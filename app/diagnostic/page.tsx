@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { Logo } from "@/components/Logo";
-import { isStorageConfigured } from "@/engine/storage";
+import { isStorageConfigured, uploadCorsStatus } from "@/engine/storage";
+import { requestOrigin } from "@/lib/request";
 import { getStripe } from "@/lib/stripe";
 import { supabasePublishableKey, supabaseUrl, supabaseUrlRaw } from "@/lib/supabase/env";
 import { createAdminClient } from "@/lib/supabase/server";
@@ -25,7 +26,24 @@ function describeError(error: unknown) {
   return String(error).slice(0, 200);
 }
 
-async function runChecks(): Promise<Check[]> {
+// Règle à coller dans Cloudflare R2 pour autoriser le dépôt de fichiers depuis le site.
+function corsRule(origin: string) {
+  return JSON.stringify(
+    [
+      {
+        AllowedOrigins: [origin],
+        AllowedMethods: ["PUT"],
+        AllowedHeaders: ["content-type"],
+        ExposeHeaders: ["ETag"],
+        MaxAgeSeconds: 3600,
+      },
+    ],
+    null,
+    2,
+  );
+}
+
+async function runChecks(origin: string): Promise<Check[]> {
   const checks: Check[] = [];
 
   // Stripe
@@ -81,6 +99,19 @@ async function runChecks(): Promise<Check[]> {
       ? "configuré"
       : "pas encore configuré (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET)",
   });
+  if (isStorageConfigured()) {
+    const cors = await uploadCorsStatus(origin);
+    checks.push({
+      label: "Dépôt de fichiers autorisé par R2 (règle CORS)",
+      ok: cors === "ok",
+      detail:
+        cors === "ok"
+          ? `oui, pour ${origin}`
+          : cors === "manquant"
+            ? "non : colle la règle ci-dessous dans Cloudflare"
+            : "R2 ne répond pas, réessaie dans un instant",
+    });
+  }
 
   // Supabase : réglages
   const url = supabaseUrl();
@@ -174,8 +205,10 @@ async function runChecks(): Promise<Check[]> {
 
 export default async function Diagnostic({ searchParams }: PageProps<"/diagnostic">) {
   await connection();
-  const checks = await runChecks();
+  const origin = await requestOrigin();
+  const checks = await runChecks(origin);
   const { resultat } = await searchParams;
+  const corsMissing = checks.some((c) => c.label.startsWith("Dépôt de fichiers") && !c.ok);
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10">
@@ -200,6 +233,20 @@ export default async function Diagnostic({ searchParams }: PageProps<"/diagnosti
           </li>
         ))}
       </ul>
+
+      {corsMissing && (
+        <section className="mt-8 rounded-2xl border-2 border-rec p-4">
+          <h2 className="font-display text-xl font-extrabold">Ouvrir le dépôt de fichiers</h2>
+          <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm leading-relaxed">
+            <li>Cloudflare → R2 → ton compartiment → onglet Paramètres (Settings).</li>
+            <li>Rubrique « Stratégie CORS » (CORS Policy) → Ajouter (Add CORS policy).</li>
+            <li>Efface tout, colle le texte ci-dessous, enregistre, puis recharge cette page.</li>
+          </ol>
+          <pre className="mt-3 overflow-x-auto rounded-xl bg-encre p-3 text-xs text-creme">
+            {corsRule(origin)}
+          </pre>
+        </section>
+      )}
 
       <section className="mt-8 rounded-2xl border-2 border-dashed border-encre/25 p-4">
         <h2 className="font-display text-xl font-extrabold">

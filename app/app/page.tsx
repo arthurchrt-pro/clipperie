@@ -5,13 +5,14 @@ import { connection } from "next/server";
 import { AutoRefresh } from "@/components/AutoRefresh";
 import { CheckoutButton } from "@/components/CheckoutButton";
 import { Logo } from "@/components/Logo";
+import { NewVideoForm } from "@/components/NewVideoForm";
 import { SubmitButton } from "@/components/SubmitButton";
 import { SITE } from "@/lib/site";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import { cleanTitle } from "@/engine/title";
 import { canRetry, IN_PROGRESS, STATUS } from "@/lib/videoStatus";
-import { openPortal, retryVideo, signOut, submitVideo } from "./actions";
+import { openPortal, retryVideo, signOut } from "./actions";
 
 export const metadata: Metadata = {
   title: "Mon espace",
@@ -58,8 +59,9 @@ function formatDuration(seconds: number) {
   return `${hours} h ${String(minutes).padStart(2, "0")}`;
 }
 
-function displayUrl(url: string | null) {
-  return url ? url.replace(/^https?:\/\/(www\.)?/, "") : "Fichier vidéo";
+function displayUrl(video: Pick<Video, "source_type" | "source_url">) {
+  if (video.source_type === "fichier" || !video.source_url) return "Fichier vidéo";
+  return video.source_url.replace(/^https?:\/\/(www\.)?/, "");
 }
 
 export default async function AppPage({ searchParams }: PageProps<"/app">) {
@@ -152,79 +154,17 @@ export default async function AppPage({ searchParams }: PageProps<"/app">) {
         <section className="rounded-[2rem] border-2 border-encre bg-papier p-5 shadow-[6px_6px_0_var(--color-encre)] md:p-8">
           <h1 className="font-display text-3xl leading-tight font-extrabold text-balance md:text-4xl">
             {videos.length === 0
-              ? "Colle le lien de ton premier live."
+              ? "Ajoute ton premier live."
               : "Un nouveau live à clipper ?"}
           </h1>
           <p className="mt-3 leading-relaxed text-encre-douce">
-            Rediffusion Twitch ou vidéo YouTube&nbsp;: Clipperie repère les
-            meilleurs moments et en fait des clips d’une minute maximum,
-            sous-titrés.
+            Lien d’une rediffusion Twitch ou d’une vidéo YouTube, ou fichier
+            vidéo&nbsp;: Clipperie repère les meilleurs moments et en fait des
+            clips d’une minute maximum, sous-titrés.
           </p>
 
           {isActive ? (
-            <form action={submitVideo} className="group mt-6 flex flex-col gap-5">
-              <label className="flex flex-col gap-2 font-semibold">
-                Lien du live
-                <input
-                  type="text"
-                  name="url"
-                  required
-                  inputMode="url"
-                  autoComplete="off"
-                  autoCapitalize="off"
-                  spellCheck={false}
-                  placeholder="twitch.tv/videos/…"
-                  className="min-h-14 rounded-2xl border-2 border-encre bg-creme px-4 text-base font-normal placeholder:text-encre-douce/60"
-                />
-              </label>
-
-              <fieldset>
-                <legend className="font-semibold">Cadrage des clips</legend>
-                <div className="mt-2 grid gap-3 sm:grid-cols-2">
-                  <LayoutChoice
-                    value="plein_ecran"
-                    title="Plein écran"
-                    text="La caméra filme le streamer (Just Chatting, podcast)."
-                    defaultChecked
-                  />
-                  <LayoutChoice
-                    value="facecam_jeu"
-                    title="Facecam + jeu"
-                    text="Webcam en haut, jeu en bas (streams gaming)."
-                  />
-                </div>
-              </fieldset>
-
-              <fieldset className="hidden group-has-[input[value=facecam_jeu]:checked]:block">
-                <legend className="font-semibold">Où est la webcam sur le live&nbsp;?</legend>
-                <div className="mt-2 grid grid-cols-2 gap-3">
-                  {(
-                    [
-                      ["haut_gauche", "En haut à gauche"],
-                      ["haut_droite", "En haut à droite"],
-                      ["bas_gauche", "En bas à gauche"],
-                      ["bas_droite", "En bas à droite"],
-                    ] as const
-                  ).map(([value, label], i) => (
-                    <label
-                      key={value}
-                      className="flex min-h-12 cursor-pointer items-center gap-2 rounded-2xl border-2 border-encre/25 bg-creme px-3 text-sm font-semibold has-[:checked]:border-encre has-[:checked]:bg-surligneur/40"
-                    >
-                      <input
-                        type="radio"
-                        name="corner"
-                        value={value}
-                        defaultChecked={i === 0}
-                        className="size-4 shrink-0 accent-[var(--color-rec)]"
-                      />
-                      {label}
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-
-              <SubmitButton pendingLabel="Ajout du live…">Lancer la découpe</SubmitButton>
-            </form>
+            <NewVideoForm />
           ) : (
             <div className="mt-6">
               <p className="mb-4 leading-snug font-semibold">
@@ -241,7 +181,7 @@ export default async function AppPage({ searchParams }: PageProps<"/app">) {
           {videos.length === 0 ? (
             <ol className="mt-4 space-y-3">
               {[
-                "Colle le lien d’une rediffusion Twitch ou d’une vidéo YouTube.",
+                "Colle le lien d’une rediffusion Twitch ou d’une vidéo YouTube, ou dépose ton fichier vidéo.",
                 "Clipperie repère une trentaine de moments forts par tranche de deux heures.",
                 "Tu télécharges tes clips sous-titrés et tu postes sur TikTok.",
               ].map((step, i) => (
@@ -286,7 +226,7 @@ export default async function AppPage({ searchParams }: PageProps<"/app">) {
                       </span>
                     </div>
                     <p className="mt-3 truncate font-semibold">
-                      {cleanTitle(video.title) ?? displayUrl(video.source_url)}
+                      {cleanTitle(video.title) ?? displayUrl(video)}
                     </p>
                     <p className="mt-1 text-sm leading-snug text-encre-douce">
                       {video.status === "erreur" && video.error_message
@@ -367,30 +307,3 @@ export default async function AppPage({ searchParams }: PageProps<"/app">) {
   );
 }
 
-function LayoutChoice({
-  value,
-  title,
-  text,
-  defaultChecked = false,
-}: {
-  value: string;
-  title: string;
-  text: string;
-  defaultChecked?: boolean;
-}) {
-  return (
-    <label className="flex cursor-pointer gap-3 rounded-2xl border-2 border-encre/25 bg-creme p-4 has-[:checked]:border-encre has-[:checked]:bg-surligneur/40">
-      <input
-        type="radio"
-        name="layout"
-        value={value}
-        defaultChecked={defaultChecked}
-        className="mt-1 size-5 shrink-0 accent-[var(--color-rec)]"
-      />
-      <span>
-        <span className="block font-display font-extrabold">{title}</span>
-        <span className="mt-1 block text-sm leading-snug text-encre-douce">{text}</span>
-      </span>
-    </label>
-  );
-}

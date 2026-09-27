@@ -7,8 +7,17 @@ import { findMoments } from "./analyze";
 import { renderClip } from "./clip";
 import { engineDb } from "./db";
 import { cornerOf, detectFacecam } from "./facecam";
-import { downloadAudioChunks, extractFrame, probeSource, UserFacingError } from "./source";
-import { storageKeys, uploadFile } from "./storage";
+import {
+  downloadAudioChunks,
+  extractFrame,
+  probeFile,
+  probeSource,
+  type Source,
+  UserFacingError,
+  youtubeProxy,
+} from "./source";
+import { openProxyRelay, type ProxyRelay } from "./proxyRelay";
+import { signedUrl, storageKeys, uploadFile } from "./storage";
 import { cleanTitle } from "./title";
 import { transcribe } from "./transcribe";
 import type { Box, Layout } from "./types";
@@ -48,19 +57,38 @@ export async function processVideo(videoId: string, log: Log) {
 
   const { data: video, error } = await db
     .from("videos")
-    .select("id, user_id, source_url, layout, facecam_box, created_at")
+    .select("id, user_id, source_type, source_url, title, layout, facecam_box, created_at")
     .eq("id", videoId)
     .single();
   if (error || !video?.source_url) throw error ?? new Error("Vidéo introuvable");
+  const sourceUrl: string = video.source_url;
+  const isFile = video.source_type === "fichier";
+
+  // Adresses des flux à lire. Elles expirent (et, pour YouTube, ne marchent que depuis
+  // l'adresse IP qui les a obtenues) : on les redemande avant la découpe, et en cas d'échec.
+  const relays: ProxyRelay[] = [];
+  const probe = async (): Promise<Source> => {
+    if (isFile) {
+      return probeFile(await signedUrl(sourceUrl, undefined, 6 * 3600), video.title ?? "Vidéo déposée");
+    }
+    const proxy = video.source_type === "youtube" ? youtubeProxy() : null;
+    if (!proxy) return probeSource(sourceUrl);
+    const relay = await openProxyRelay(proxy);
+    relays.push(relay);
+    return probeSource(sourceUrl, proxy, relay.url);
+  };
 
   const workDir = await mkdtemp(join(tmpdir(), "clipperie-"));
   try {
     // 1. Informations sur la vidéo et contrôle du quota mensuel.
     await setStatus("telechargement");
-    const source = await probeSource(video.source_url);
+    let source = await probe();
     await db
       .from("videos")
-      .update({ title: cleanTitle(source.title), duration_seconds: Math.round(source.duration) })
+      .update({
+        ...(isFile ? {} : { title: cleanTitle(source.title) }),
+        duration_seconds: Math.round(source.duration),
+      })
       .eq("id", videoId);
 
     const { data: subscription } = await db
@@ -147,18 +175,38 @@ export async function processVideo(videoId: string, log: Log) {
 
     // 4. Découpe et stockage.
     await setStatus("rendu");
+    let refreshing: Promise<Source> | null = null;
+    const refreshSource = async (stale: Source) => {
+      if (source !== stale) return source; // déjà renouvelées par un autre clip
+      refreshing ??= probe()
+        .then((fresh) => (source = fresh))
+        .finally(() => (refreshing = null));
+      return refreshing;
+    };
+    try {
+      await refreshSource(source);
+    } catch (probeError) {
+      log("Adresses des flux non renouvelées", { erreur: String(probeError).slice(0, 300) });
+    }
+
     const done: { path: string; title: string }[] = [];
     await pool(clips, PARALLEL_RENDERS, async (clip, index) => {
       try {
-        const { videoPath, thumbPath } = await renderClip({
-          source,
-          start: Number(clip.start_seconds),
-          end: Number(clip.end_seconds),
-          words: transcript.words,
-          layout: video.layout as Layout,
-          box,
-          dir: workDir,
-          name: clip.id,
+        const render = (from: Source) =>
+          renderClip({
+            source: from,
+            start: Number(clip.start_seconds),
+            end: Number(clip.end_seconds),
+            words: transcript.words,
+            layout: video.layout as Layout,
+            box,
+            dir: workDir,
+            name: clip.id,
+          });
+        const used = source;
+        const { videoPath, thumbPath } = await render(used).catch(async (firstError) => {
+          log(`Clip ${index + 1} : nouvel essai`, { erreur: String(firstError).slice(0, 300) });
+          return render(await refreshSource(used));
         });
         const key = storageKeys.clip(video.user_id, videoId, clip.id);
         await uploadFile(key, videoPath, "video/mp4");
@@ -207,6 +255,7 @@ export async function processVideo(videoId: string, log: Log) {
     await db.from("videos").update({ status: "erreur", error_message: message }).eq("id", videoId);
     throw failure;
   } finally {
+    for (const relay of relays) relay.close();
     await rm(workDir, { recursive: true, force: true });
   }
 }
