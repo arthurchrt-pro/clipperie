@@ -31,7 +31,7 @@ export const LEGAL = {
   // Adresse postale de domiciliation de l'entreprise
   adresse: "62b rue Danton" as string | null,
   // Code postal et ville, ex. "75006 Paris"
-  ville: null as string | null,
+  ville: "35700 Rennes" as string | null,
   // Adresse email de contact affichée publiquement, ex. "bonjour@clipperie.fr"
   email: "seconde-main.contact@proton.me" as string | null,
   // Mention TVA : à garder tant que tu es en franchise de TVA
