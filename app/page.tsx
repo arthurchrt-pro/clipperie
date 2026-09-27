@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { CheckoutButton } from "@/components/CheckoutButton";
 import { HeroVisual } from "@/components/HeroVisual";
 import { Logo } from "@/components/Logo";
@@ -91,9 +92,12 @@ export default function Home() {
     <>
       <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 pt-5 md:px-8 md:pt-7">
         <Logo />
-        <span className="text-sm font-semibold text-encre-douce tabular-nums">
-          {SITE.price}/mois
-        </span>
+        <Link
+          href="/connexion"
+          className="py-2 text-sm font-semibold text-encre-douce underline-offset-4 hover:underline"
+        >
+          Déjà client&nbsp;? Connexion
+        </Link>
       </header>
 
       <main className="flex-1">

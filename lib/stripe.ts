@@ -37,3 +37,30 @@ export async function getSubscriptionPriceId(stripe: Stripe): Promise<string> {
   });
   return price.id;
 }
+
+// Portail client Stripe (carte, factures, résiliation), configuré automatiquement la première fois.
+export async function getPortalConfigurationId(
+  stripe: Stripe,
+  origin: string,
+): Promise<string> {
+  const { data } = await stripe.billingPortal.configurations.list({
+    is_default: true,
+    active: true,
+    limit: 1,
+  });
+  if (data[0]) return data[0].id;
+
+  const configuration = await stripe.billingPortal.configurations.create({
+    business_profile: {
+      privacy_policy_url: `${origin}/confidentialite`,
+      terms_of_service_url: `${origin}/cgv`,
+    },
+    features: {
+      subscription_cancel: { enabled: true, mode: "at_period_end" },
+      payment_method_update: { enabled: true },
+      invoice_history: { enabled: true },
+    },
+    default_return_url: `${origin}/app`,
+  });
+  return configuration.id;
+}
