@@ -35,6 +35,8 @@ export const storageKeys = {
   clip: (userId: string, videoId: string, clipId: string) => `clips/${userId}/${videoId}/${clipId}.mp4`,
   thumbnail: (userId: string, videoId: string, clipId: string) => `clips/${userId}/${videoId}/${clipId}.jpg`,
   archive: (userId: string, videoId: string) => `clips/${userId}/${videoId}/clipperie.zip`,
+  transcript: (userId: string, videoId: string) => `clips/${userId}/${videoId}/transcription.json`,
+  frame: (userId: string, videoId: string) => `clips/${userId}/${videoId}/image-webcam.jpg`,
 };
 
 export async function uploadFile(key: string, path: string, contentType: string) {

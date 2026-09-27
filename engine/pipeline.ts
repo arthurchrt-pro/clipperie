@@ -1,12 +1,13 @@
 import { createWriteStream } from "node:fs";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { ZipArchive } from "archiver";
 import { findMoments } from "./analyze";
 import { renderClip } from "./clip";
 import { engineDb } from "./db";
-import { downloadAudioChunks, probeSource, UserFacingError } from "./source";
+import { cornerOf, detectFacecam } from "./facecam";
+import { downloadAudioChunks, extractFrame, probeSource, UserFacingError } from "./source";
 import { storageKeys, uploadFile } from "./storage";
 import { cleanTitle } from "./title";
 import { transcribe } from "./transcribe";
@@ -87,10 +88,31 @@ export async function processVideo(videoId: string, log: Log) {
       }
     }
 
+    // Facecam + jeu : repérage précis de la webcam sur une image du live.
+    let box = video.facecam_box as Box | null;
+    if (video.layout === "facecam_jeu") {
+      const framePath = join(workDir, "image-webcam.jpg");
+      try {
+        await extractFrame(source.video, source.duration * 0.3, framePath);
+        const hint = cornerOf(box ?? { x: 0, y: 0, w: 0.28, h: 0.28 });
+        const result = await detectFacecam(framePath, hint);
+        box = result.box;
+        log(result.detected ? "Webcam repérée" : "Webcam non repérée : zone du coin choisi", { box });
+        await db.from("videos").update({ facecam_box: box }).eq("id", videoId);
+        await uploadFile(storageKeys.frame(video.user_id, videoId), framePath, "image/jpeg");
+      } catch (frameError) {
+        log("Image de la webcam indisponible", { erreur: String(frameError).slice(0, 300) });
+      }
+    }
+
     // 2. Transcription.
     await setStatus("transcription");
     const chunks = await downloadAudioChunks(source.audioOnly, workDir);
     const transcript = await transcribe(chunks);
+    // Conservée pour pouvoir refaire les clips plus tard sans tout retranscrire.
+    const transcriptPath = join(workDir, "transcription.json");
+    await writeFile(transcriptPath, JSON.stringify(transcript));
+    await uploadFile(storageKeys.transcript(video.user_id, videoId), transcriptPath, "application/json");
     log("Transcription terminée", { mots: transcript.words.length, langue: transcript.language });
     if (transcript.words.length < 20) {
       throw new UserFacingError("On n’entend presque personne parler dans cette vidéo : impossible d’en tirer des clips.");
@@ -134,7 +156,7 @@ export async function processVideo(videoId: string, log: Log) {
           end: Number(clip.end_seconds),
           words: transcript.words,
           layout: video.layout as Layout,
-          box: video.facecam_box as Box | null,
+          box,
           dir: workDir,
           name: clip.id,
         });

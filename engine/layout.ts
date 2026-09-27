@@ -13,12 +13,30 @@ export function cornerBox(corner: Corner): Box {
   };
 }
 
+// Élargit le cadre de la webcam au format 16:9 du bandeau du haut, centré sur la webcam,
+// pour ne jamais déformer l'image (la source est supposée en 16:9).
+export function fitBox(box: Box): Box {
+  const TARGET = 1080 / 608; // proportions du bandeau, en pixels
+  const SOURCE = 16 / 9;
+  let { w, h } = box;
+  const ratio = (w * SOURCE) / h; // proportions réelles du cadre, en pixels
+  if (ratio < TARGET) w = (h * TARGET) / SOURCE;
+  else h = (w * SOURCE) / TARGET;
+  w = Math.min(w, 1);
+  h = Math.min(h, 1);
+  const cx = box.x + box.w / 2;
+  const cy = box.y + box.h / 2;
+  const x = Math.min(Math.max(cx - w / 2, 0), 1 - w);
+  const y = Math.min(Math.max(cy - h / 2, 0), 1 - h);
+  return { x, y, w, h };
+}
+
 // Chaîne de filtres ffmpeg qui transforme l'image source en vidéo verticale 1080 × 1920.
 // L'entrée est [0:v] ; la sortie s'appelle [v].
 export function verticalFilter(layout: Layout, box: Box | null, subtitlesPath: string, fontsDir: string) {
   const subtitles = `subtitles=${subtitlesPath}:fontsdir=${fontsDir}`;
   if (layout === "facecam_jeu") {
-    const b = box ?? cornerBox("haut_gauche");
+    const b = fitBox(box ?? cornerBox("haut_gauche"));
     const TOP = 608; // webcam en 16:9 sur toute la largeur
     const BOTTOM = 1920 - TOP;
     return [

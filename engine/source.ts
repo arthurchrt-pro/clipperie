@@ -117,6 +117,21 @@ export function inputArgs(stream: Stream): string[] {
   return [...(headers ? ["-headers", headers] : []), "-i", stream.url];
 }
 
+// Extrait une image du live à un instant donné (pour repérer la webcam).
+export async function extractFrame(stream: Stream, at: number, path: string) {
+  await run(
+    FFMPEG,
+    [
+      "-hide_banner", "-loglevel", "error", "-y",
+      "-ss", at.toFixed(1),
+      ...inputArgs(stream),
+      "-frames:v", "1", "-vf", "scale=1280:-2", "-q:v", "3",
+      path,
+    ],
+    { timeoutMs: 3 * 60 * 1000 },
+  );
+}
+
 // Récupère le son en morceaux de 20 minutes (mono, 16 kHz), prêts pour la transcription.
 export async function downloadAudioChunks(stream: Stream, dir: string) {
   await run(
