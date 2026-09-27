@@ -6,6 +6,7 @@ import { AutoRefresh } from "@/components/AutoRefresh";
 import { CopyButton } from "@/components/CopyButton";
 import { Logo } from "@/components/Logo";
 import { isStorageConfigured, signedUrl, storageKeys } from "@/engine/storage";
+import { cleanTitle } from "@/engine/title";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import { buttonPrimary } from "@/lib/ui";
@@ -80,7 +81,7 @@ export default async function VideoClips({ params }: PageProps<"/app/videos/[id]
     : [];
   const archiveUrl =
     storageReady && video.status === "pret"
-      ? await signedUrl(storageKeys.archive(video.user_id, video.id), `clipperie-${fileName(video.title ?? "clips")}.zip`)
+      ? await signedUrl(storageKeys.archive(video.user_id, video.id), `clipperie-${fileName(cleanTitle(video.title) ?? "clips")}.zip`)
       : null;
 
   const status = STATUS[video.status] ?? STATUS.en_attente;
@@ -101,7 +102,7 @@ export default async function VideoClips({ params }: PageProps<"/app/videos/[id]
         {inProgress && <AutoRefresh intervalMs={10000} maxTries={360} />}
         <p className="text-sm font-semibold tracking-[0.14em] text-rec uppercase">{status.label}</p>
         <h1 className="mt-2 font-display text-3xl leading-tight font-extrabold text-balance md:text-4xl">
-          {video.title ?? "Ton live"}
+          {cleanTitle(video.title) ?? "Ton live"}
         </h1>
         <p className="mt-2 text-encre-douce">
           {video.status === "pret"

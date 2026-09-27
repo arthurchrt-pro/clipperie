@@ -9,6 +9,7 @@ import { SubmitButton } from "@/components/SubmitButton";
 import { SITE } from "@/lib/site";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
+import { cleanTitle } from "@/engine/title";
 import { canRetry, IN_PROGRESS, STATUS } from "@/lib/videoStatus";
 import { openPortal, retryVideo, signOut, submitVideo } from "./actions";
 
@@ -285,7 +286,7 @@ export default async function AppPage({ searchParams }: PageProps<"/app">) {
                       </span>
                     </div>
                     <p className="mt-3 truncate font-semibold">
-                      {video.title ?? displayUrl(video.source_url)}
+                      {cleanTitle(video.title) ?? displayUrl(video.source_url)}
                     </p>
                     <p className="mt-1 text-sm leading-snug text-encre-douce">
                       {video.status === "erreur" && video.error_message

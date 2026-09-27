@@ -8,6 +8,7 @@ import { renderClip } from "./clip";
 import { engineDb } from "./db";
 import { downloadAudioChunks, probeSource, UserFacingError } from "./source";
 import { storageKeys, uploadFile } from "./storage";
+import { cleanTitle } from "./title";
 import { transcribe } from "./transcribe";
 import type { Box, Layout } from "./types";
 
@@ -56,7 +57,10 @@ export async function processVideo(videoId: string, log: Log) {
     // 1. Informations sur la vidéo et contrôle du quota mensuel.
     await setStatus("telechargement");
     const source = await probeSource(video.source_url);
-    await db.from("videos").update({ title: source.title, duration_seconds: Math.round(source.duration) }).eq("id", videoId);
+    await db
+      .from("videos")
+      .update({ title: cleanTitle(source.title), duration_seconds: Math.round(source.duration) })
+      .eq("id", videoId);
 
     const { data: subscription } = await db
       .from("subscriptions")
