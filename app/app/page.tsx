@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
+import { AutoRefresh } from "@/components/AutoRefresh";
 import { CheckoutButton } from "@/components/CheckoutButton";
 import { Logo } from "@/components/Logo";
 import { SubmitButton } from "@/components/SubmitButton";
 import { SITE } from "@/lib/site";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
-import { openPortal, signOut, submitVideo } from "./actions";
+import { IN_PROGRESS, STATUS } from "@/lib/videoStatus";
+import { openPortal, retryVideo, signOut, submitVideo } from "./actions";
 
 export const metadata: Metadata = {
   title: "Mon espace",
@@ -17,6 +19,7 @@ export const metadata: Metadata = {
 
 type Video = {
   id: string;
+  title: string | null;
   source_type: "twitch" | "youtube" | "fichier";
   source_url: string | null;
   layout: "plein_ecran" | "facecam_jeu";
@@ -41,18 +44,6 @@ const ERRORS: Record<string, string> = {
   portail: "Impossible d’ouvrir la gestion de l’abonnement pour l’instant. Réessaie dans un instant.",
 };
 
-const STATUS: Record<string, { label: string; detail: string }> = {
-  en_attente: {
-    label: "En file d’attente",
-    detail: `Pendant le lancement, tes clips sont prêts sous ${SITE.launchDeliveryDays} jours.`,
-  },
-  telechargement: { label: "Récupération", detail: "On récupère la vidéo." },
-  transcription: { label: "Transcription", detail: "On écoute tout le live." },
-  analyse: { label: "Repérage", detail: "On cherche les meilleurs moments." },
-  rendu: { label: "Découpe", detail: "On fabrique tes clips." },
-  pret: { label: "Clips prêts", detail: "Tes clips t’attendent." },
-  erreur: { label: "Erreur", detail: "Ce live n’a pas pu être découpé." },
-};
 
 const dateFormat = new Intl.DateTimeFormat("fr-FR", {
   day: "numeric",
@@ -88,7 +79,7 @@ export default async function AppPage({ searchParams }: PageProps<"/app">) {
       .maybeSingle<Subscription>(),
     supabase
       .from("videos")
-      .select("id, source_type, source_url, layout, status, error_message, duration_seconds, created_at")
+      .select("id, title, source_type, source_url, layout, status, error_message, duration_seconds, created_at")
       .order("created_at", { ascending: false })
       .limit(30)
       .returns<Video[]>(),
@@ -125,6 +116,9 @@ export default async function AppPage({ searchParams }: PageProps<"/app">) {
       </header>
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 pt-8 pb-20 md:px-8">
+        {videos.some((v) => IN_PROGRESS.includes(v.status)) && (
+          <AutoRefresh intervalMs={10000} maxTries={360} />
+        )}
         {ajoute === "1" && (
           <p
             role="status"
@@ -167,7 +161,7 @@ export default async function AppPage({ searchParams }: PageProps<"/app">) {
           </p>
 
           {isActive ? (
-            <form action={submitVideo} className="mt-6 flex flex-col gap-5">
+            <form action={submitVideo} className="group mt-6 flex flex-col gap-5">
               <label className="flex flex-col gap-2 font-semibold">
                 Lien du live
                 <input
@@ -197,6 +191,34 @@ export default async function AppPage({ searchParams }: PageProps<"/app">) {
                     title="Facecam + jeu"
                     text="Webcam en haut, jeu en bas (streams gaming)."
                   />
+                </div>
+              </fieldset>
+
+              <fieldset className="hidden group-has-[input[value=facecam_jeu]:checked]:block">
+                <legend className="font-semibold">Où est la webcam sur le live&nbsp;?</legend>
+                <div className="mt-2 grid grid-cols-2 gap-3">
+                  {(
+                    [
+                      ["haut_gauche", "En haut à gauche"],
+                      ["haut_droite", "En haut à droite"],
+                      ["bas_gauche", "En bas à gauche"],
+                      ["bas_droite", "En bas à droite"],
+                    ] as const
+                  ).map(([value, label], i) => (
+                    <label
+                      key={value}
+                      className="flex min-h-12 cursor-pointer items-center gap-2 rounded-2xl border-2 border-encre/25 bg-creme px-3 text-sm font-semibold has-[:checked]:border-encre has-[:checked]:bg-surligneur/40"
+                    >
+                      <input
+                        type="radio"
+                        name="corner"
+                        value={value}
+                        defaultChecked={i === 0}
+                        className="size-4 shrink-0 accent-[var(--color-rec)]"
+                      />
+                      {label}
+                    </label>
+                  ))}
                 </div>
               </fieldset>
 
@@ -262,13 +284,34 @@ export default async function AppPage({ searchParams }: PageProps<"/app">) {
                         {status.label}
                       </span>
                     </div>
-                    <p className="mt-3 truncate font-semibold">{displayUrl(video.source_url)}</p>
+                    <p className="mt-3 truncate font-semibold">
+                      {video.title ?? displayUrl(video.source_url)}
+                    </p>
                     <p className="mt-1 text-sm leading-snug text-encre-douce">
                       {video.status === "erreur" && video.error_message
                         ? video.error_message
                         : status.detail}{" "}
                       · {video.layout === "facecam_jeu" ? "Facecam + jeu" : "Plein écran"}
                     </p>
+                    {video.status === "pret" && (
+                      <Link
+                        href={`/app/videos/${video.id}`}
+                        className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-rec px-4 font-display font-extrabold text-white"
+                      >
+                        Voir les clips →
+                      </Link>
+                    )}
+                    {video.status === "erreur" && (
+                      <form action={retryVideo} className="mt-3">
+                        <input type="hidden" name="video_id" value={video.id} />
+                        <button
+                          type="submit"
+                          className="inline-flex min-h-11 cursor-pointer items-center rounded-xl border-2 border-encre px-4 font-display font-extrabold"
+                        >
+                          Réessayer
+                        </button>
+                      </form>
+                    )}
                   </li>
                 );
               })}

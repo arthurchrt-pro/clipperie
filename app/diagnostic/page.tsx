@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { Logo } from "@/components/Logo";
+import { isStorageConfigured } from "@/engine/storage";
 import { getStripe } from "@/lib/stripe";
 import { supabasePublishableKey, supabaseUrl, supabaseUrlRaw } from "@/lib/supabase/env";
 import { createAdminClient } from "@/lib/supabase/server";
@@ -58,6 +59,27 @@ async function runChecks(): Promise<Check[]> {
       : webhookSecret.startsWith("whsec_")
         ? "présent"
         : "ne commence pas par whsec_",
+  });
+
+  // Moteur de découpe
+  const triggerKey = process.env.TRIGGER_SECRET_KEY?.trim() ?? "";
+  checks.push({
+    label: "Clé du moteur Trigger.dev (TRIGGER_SECRET_KEY)",
+    ok: triggerKey.startsWith("tr_prod_"),
+    detail: !triggerKey
+      ? "absente : les lives restent en file d’attente"
+      : triggerKey.startsWith("tr_prod_")
+        ? "présente, environnement Production"
+        : triggerKey.startsWith("tr_dev_")
+          ? "c’est la clé de Development : il faut celle de Production (tr_prod_)"
+          : "format inattendu",
+  });
+  checks.push({
+    label: "Stockage des clips (Cloudflare R2)",
+    ok: isStorageConfigured(),
+    detail: isStorageConfigured()
+      ? "configuré"
+      : "pas encore configuré (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET)",
   });
 
   // Supabase : réglages

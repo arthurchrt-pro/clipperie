@@ -3,8 +3,15 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-// Recharge la page toutes les 2 secondes, le temps que Stripe confirme le paiement.
-export function AutoRefresh({ maxTries = 15 }: { maxTries?: number }) {
+// Recharge régulièrement la page, le temps qu'une opération se termine
+// (confirmation d'un paiement, découpe d'un live).
+export function AutoRefresh({
+  maxTries = 15,
+  intervalMs = 2000,
+}: {
+  maxTries?: number;
+  intervalMs?: number;
+}) {
   const router = useRouter();
   useEffect(() => {
     let tries = 0;
@@ -12,8 +19,8 @@ export function AutoRefresh({ maxTries = 15 }: { maxTries?: number }) {
       tries += 1;
       if (tries > maxTries) clearInterval(timer);
       else router.refresh();
-    }, 2000);
+    }, intervalMs);
     return () => clearInterval(timer);
-  }, [router, maxTries]);
+  }, [router, maxTries, intervalMs]);
   return null;
 }

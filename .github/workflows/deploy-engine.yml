@@ -1,0 +1,34 @@
+name: Mise en ligne du moteur (Trigger.dev)
+
+on:
+  push:
+    branches: [claude/clipperie-saas-mvp-eqt6cj, main]
+    paths:
+      - "engine/**"
+      - "trigger/**"
+      - "trigger.config.ts"
+      - "assets/fonts/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/deploy-engine.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-engine
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Déployer les tâches sur Trigger.dev
+        run: npx trigger.dev@4.6.4 deploy --env prod
+        env:
+          TRIGGER_ACCESS_TOKEN: ${{ secrets.TRIGGER_ACCESS_TOKEN }}
