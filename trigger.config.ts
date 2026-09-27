@@ -26,7 +26,7 @@ function ytDlp(): BuildExtension {
 export default defineConfig({
   project: "proj_cgukcobgngzsncpovobt",
   dirs: ["./trigger"],
-  runtime: "node",
+  runtime: "node-22",
   logLevel: "info",
   maxDuration: 4 * 60 * 60,
   retries: {
