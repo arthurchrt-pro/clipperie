@@ -14,18 +14,18 @@ export const metadata = pageMetadata({
 const BENEFITS = [
   {
     step: "01 · Repérer",
-    title: "Les meilleurs moments, trouvés pour toi",
-    text: "Clipperie écoute toute ta vidéo et garde les passages qui tiennent tout seuls : une idée forte, une anecdote, une chute. Une minute maximum chacun, le format qui marche sur TikTok.",
+    title: "Les moments qui font des vues, trouvés pour toi",
+    text: "Clipperie écoute tout le live et garde les passages qui tiennent tout seuls : une réaction, une punchline, un fou rire. Une minute maximum chacun, le format qui marche sur TikTok.",
   },
   {
     step: "02 · Sous-titrer",
-    title: "Des clips qui se comprennent sans le son",
-    text: "Chaque clip est recadré à la verticale et sous-titré mot à mot, ponctuation comprise. Un titre t’est proposé pour chacun.",
+    title: "Des clips qui accrochent sans le son",
+    text: "Chaque clip est recadré à la verticale et sous-titré mot à mot, en bon français. Une accroche t’est proposée pour chacun.",
   },
   {
-    step: "03 · Publier",
-    title: "Tout est prêt, d’un seul coup",
-    text: "Tu télécharges tous tes clips en une fois, avec leurs titres. Il ne te reste qu’à les publier sur TikTok, et même sur Reels et Shorts.",
+    step: "03 · Poster",
+    title: "Trente clips, un seul téléchargement",
+    text: "Tu récupères tout d’un coup, avec les accroches. Tu postes pendant que le live est encore chaud, avant les autres clippeurs.",
   },
 ];
 
@@ -33,15 +33,20 @@ const FEATURES = [
   "Un lien Twitch ou YouTube suffit",
   "Repérage des moments forts",
   "Clips verticaux d’une minute maximum",
-  "Sous-titres incrustés et titre proposé",
+  "Sous-titres incrustés et accroche proposée",
   "Export de tous tes clips en une fois",
 ];
 
 const FAQ = [
   {
+    question: "J’ai le droit de clipper n’importe quel streamer ?",
+    answer:
+      "Seulement ceux qui t’y autorisent. Beaucoup de streamers lancent des campagnes de clipping et paient les clippeurs aux vues : ce sont eux qu’il faut viser. Sans accord, TikTok peut supprimer tes vidéos, voire ton compte.",
+  },
+  {
     question: "Quelles vidéos puis-je utiliser ?",
     answer:
-      "Colle le lien d’un live Twitch (tant que la rediffusion est en ligne) ou d’une vidéo YouTube. Tout ce qui est parlé fonctionne : lives, podcasts, formations. Tu peux aussi déposer un fichier vidéo.",
+      "Le lien d’un live Twitch (tant que la rediffusion est en ligne) ou d’une vidéo YouTube. Tu peux aussi déposer un fichier vidéo.",
   },
   {
     question: "Combien de temps faut-il attendre ?",
@@ -51,11 +56,6 @@ const FAQ = [
     question: "Et si je veux arrêter ?",
     answer:
       "Tu résilies en ligne, quand tu veux. Pas d’engagement, pas de frais cachés.",
-  },
-  {
-    question: "Dans quelles langues ?",
-    answer:
-      "Le français d’abord, soigné jusqu’à la ponctuation. L’anglais, l’espagnol et la plupart des autres langues fonctionnent aussi.",
   },
 ];
 
@@ -100,17 +100,18 @@ export default function Home() {
         <section className="mx-auto grid max-w-5xl gap-12 px-4 pt-8 pb-16 md:grid-cols-[1.15fr_1fr] md:items-center md:gap-14 md:px-8 md:pt-16 md:pb-24">
           <div>
             <p className="text-[13px] font-semibold tracking-[0.08em] text-encre-douce uppercase md:text-sm md:tracking-[0.14em]">
-              Podcasteurs, streamers, formateurs
+              Pour les clippeurs Twitch et YouTube
             </p>
             <h1 className="mt-3 font-display text-[2.55rem] leading-[1.03] font-extrabold tracking-tight text-balance md:text-[3.6rem]">
               Un live de deux heures devient{" "}
               <span className="surligne">trente clips</span> verticaux.
             </h1>
             <p className="mt-5 text-lg leading-relaxed text-encre-douce md:text-xl">
-              Colle le lien de ton live Twitch ou de ta vidéo YouTube.
-              Clipperie en tire des clips TikTok d’une minute maximum,{" "}
+              Colle le lien d’un live Twitch ou d’une vidéo YouTube. Clipperie
+              trouve les meilleurs moments et en fait des clips TikTok d’une
+              minute maximum,{" "}
               <span className="whitespace-nowrap">sous-titrés</span>. Tu n’as
-              plus qu’à publier.
+              plus qu’à poster.
             </p>
             <div className="mt-7 md:max-w-sm">
               <CheckoutButton stickyHide>
@@ -135,13 +136,13 @@ export default function Home() {
                 Le problème
               </p>
               <h2 className="mt-3 font-display text-3xl leading-tight font-extrabold text-balance md:text-5xl">
-                Découper un live à la main, c’est une journée entière.
+                Clipper un live à la main, c’est une journée entière.
               </h2>
               <p className="mt-5 text-lg leading-relaxed text-creme/80">
-                Repérer le bon passage, couper, recadrer, sous-titrer, trouver
-                un titre&nbsp;: un quart d’heure par clip, au bas mot. Alors la
-                vidéo dort sur ton disque, et le format court, le seul qui
-                t’amène de nouvelles audiences, reste vide.
+                Revoir le live, repérer le moment, couper, recadrer,
+                sous-titrer, trouver une accroche&nbsp;: un quart d’heure par
+                clip, au bas mot. Et pendant ce temps, un autre clippeur a déjà
+                posté le moment qui fait les vues.
               </p>
             </div>
             <div className="font-display font-extrabold tabular-nums">
@@ -177,7 +178,7 @@ export default function Home() {
         <section className="mx-auto max-w-5xl px-4 py-16 md:px-8 md:py-24">
           <Kicker>Ce que fait Clipperie</Kicker>
           <h2 className="mt-3 font-display text-3xl leading-tight font-extrabold text-balance md:text-5xl">
-            Tu parles. Clipperie découpe.
+            Tu choisis le live. Clipperie découpe.
           </h2>
           <ol className="mt-10 grid gap-5 md:grid-cols-3">
             {BENEFITS.map((benefit) => (
@@ -208,8 +209,8 @@ export default function Home() {
               <span className="text-xl text-encre-douce">&nbsp;/&nbsp;mois</span>
             </p>
             <p className="mt-3 text-lg leading-snug">
-              <strong>{SITE.clipsPerMonth} clips par mois</strong>&nbsp;: de quoi
-              découper un épisode par semaine.
+              <strong>{SITE.clipsPerMonth} clips par mois</strong>, sous-titrés et
+              prêts à poster.
             </p>
             <ul className="mt-6 space-y-3">
               {FEATURES.map((feature) => (

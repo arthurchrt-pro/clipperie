@@ -15,9 +15,9 @@ const text = await readFile(
 );
 
 const CLIPS = [
-  { before: "j’ai", word: "démissionné", after: "un mardi", tilt: -4 },
-  { before: "personne ne", word: "regarde", after: "ton intro", tilt: 0 },
-  { before: "c’est là que", word: "tout", after: "se joue", tilt: 4 },
+  { before: "non mais", word: "regarde", after: "le chat", tilt: -4 },
+  { before: "il l’a", word: "vraiment", after: "fait en live", tilt: 0 },
+  { before: "je suis", word: "choqué", after: "en vrai", tilt: 4 },
 ];
 
 export default function OpengraphImage() {

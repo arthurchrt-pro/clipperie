@@ -55,6 +55,21 @@ export default function MentionsLegales() {
         droit sur ces contenus.
       </p>
 
+      <h2>Marques</h2>
+      <p>
+        Twitch, YouTube et TikTok sont des marques de leurs propriétaires
+        respectifs. Clipperie n’est ni affilié à ces plateformes, ni approuvé
+        par elles.
+      </p>
+
+      <h2>Signaler un contenu</h2>
+      <p>
+        Si un contenu traité avec Clipperie porte atteinte à tes droits,
+        écris à <Todo value={LEGAL.email} label="email de contact" /> en
+        indiquant le contenu concerné et tes droits sur celui-ci. Il sera
+        retiré dans les meilleurs délais.
+      </p>
+
       <h2>Données personnelles</h2>
       <p>
         Le traitement de tes données est décrit dans la{" "}

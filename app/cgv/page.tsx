@@ -95,6 +95,10 @@ export default function Cgv() {
         à cette adresse. Il est responsable de la confidentialité de l’accès à
         sa boîte email.
       </p>
+      <p>
+        Le client déclare être majeur ou, s’il est mineur, disposer de
+        l’autorisation de son représentant légal pour souscrire.
+      </p>
 
       <h2>7. Essai gratuit</h2>
       <p>
@@ -141,16 +145,29 @@ export default function Cgv() {
 
       <h2>10. Contenus du client</h2>
       <p>
-        Le client garantit détenir les droits sur les vidéos qu’il dépose ou
-        dont il fournit le lien (contenu dont il est l’auteur, ou autorisation
-        de l’auteur). Il reste seul propriétaire de ses vidéos et de ses clips,
-        et seul responsable de leur publication. Il accorde à Clipperie le seul
-        droit de les traiter pour fournir le service.
+        Clipperie est un outil de découpe. Le client ne l’utilise que sur des
+        vidéos dont il est l’auteur, ou pour lesquelles il dispose de
+        l’autorisation du titulaire des droits, par exemple un streamer qui
+        autorise le clipping de ses lives ou qui organise une campagne de
+        clipping. Le client est seul responsable du respect de ces droits et de
+        la publication de ses clips, notamment au regard des règles des
+        plateformes où il les publie.
+      </p>
+      <p>
+        Clipperie ne revendique aucun droit sur les vidéos ni sur les clips. Le
+        client lui accorde le seul droit de les traiter pour fournir le
+        service.
       </p>
       <p>
         Sont interdits les contenus illicites, haineux, violents ou portant
-        atteinte aux droits d’un tiers. Clipperie peut supprimer un tel contenu
-        et suspendre le compte concerné.
+        atteinte aux droits d’un tiers. Tout titulaire de droits peut signaler
+        un contenu à <Todo value={LEGAL.email} label="email de contact" />.
+        Clipperie retire promptement le contenu signalé et peut suspendre le
+        compte concerné, définitivement en cas de manquements répétés.
+      </p>
+      <p>
+        Clipperie n’est ni affilié à Twitch, YouTube ou TikTok, ni approuvé par
+        ces plateformes.
       </p>
 
       <h2>11. Conservation des fichiers</h2>
